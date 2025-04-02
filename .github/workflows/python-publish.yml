@@ -31,12 +31,12 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
+      - name: Build web app
         working-directory: app
-        run: npm run build; find .. -name "litepolis_ui_*" -exec cp -r build/static/* {}/static/ \;
+        run: |
+          npm install
+          npm run build
+          find .. -name "litepolis_ui_*" -exec cp -r build/static/* {}/static/ \;
 
       - name: Build release distributions
         run: |
