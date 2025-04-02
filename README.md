@@ -1,61 +1,96 @@
-# LitePolis UI Template
+# Building a LitePolis UI Module with a React Frontend and Automated Deployment
 
-This repository serves as a template for creating UI modules for LitePolis. It provides a basic structure and example code to guide you through the process of building user interfaces.
+This tutorial will guide you through the process of creating a LitePolis UI module that utilizes a React.js frontend. We'll also demonstrate how to use GitHub Actions to automate the build and publishing process.
 
-> :warning: Keep the prefix "litepolis-ui-" and "litepolis_ui_" in the name of package and directories to ensure the LitePolis package manager will be able to recognize it during deployment.
+## Prerequisites
 
-## Getting Started
+* Basic understanding of Python and React.js.
+* Node.js and npm (or yarn) installed on your development machine.
+* A GitHub account.
 
-* **`setup.py`**: This file contains metadata about your package. **Crucially**, you need to change the `name` field to your package's unique name. Also, update the `version`, `description`, `author`, and `url` fields as needed.
+## Step 1: Setting Up the Project Structure
 
-* **`litepolis_ui_template/core.py`**: This file contains the core logic for your UI module. It defines how static files are served and includes the `DEFAULT_CONFIG` dictionary. The `DEFAULT_CONFIG` dictionary provides default configuration settings that will be registered with LitePolis.  **Important:**  This file sets up the serving of your UI's static files.  You can also include UI specific configuration in `DEFAULT_CONFIG`.
+This template provides the basic structure for your LitePolis UI module. Here's a quick overview of the key files and directories:
 
-* **`tests/test_core.py`**: This file contains tests for your module. Update the tests to reflect your UI module's functionality. Thorough testing is essential for ensuring the correctness of your module. Ensure your tests correctly set up the FastAPI test application to serve your static files and utilize `DEFAULT_CONFIG` as needed.
+* **`setup.py`**: Contains metadata about your Python package.
+* **`litepolis_ui_template/`**: This directory will be renamed to your actual package name (e.g., `litepolis_ui_my_awesome_ui`).
+    * **`core.py`**: Contains the core logic for serving your UI's static files and defines the `DEFAULT_CONFIG`.
+    * **`static/`**: This directory will hold the static files of your React application.
+* **`tests/`**: Contains tests for your module.
+* **`app/`**: This directory contains the source code for your React.js frontend.
+    * **`package.json`**: Defines the dependencies and build scripts for your React app.
+    * **`src/`**: Contains the React application's source code (e.g., `index.js`).
+    * **`public/`**: Contains the `index.html`.
 
+## Step 2: Developing Your React Frontend
 
-## About `DEFAULT_CONFIG`
+The frontend for this LitePolis UI module is built using React. You can find the source code in the `app/` directory.
 
-This dictionary, defined in `core.py`, holds default configuration values for your UI module. These values will be registered with the LitePolis configuration system when the module is deployed. If modified configurations are provided during deployment, they will override these defaults. Settings can be fetched within your code (or other services) using the `get_config(<package-name>, <configuration-key>)` function provided by LitePolis infrastructure, which will return the currently active value.  For UI modules, this can be used to configure aspects of the UI, such as theming or default settings.
+* **`app/package.json`**: This file lists the necessary dependencies for your React application, including `react`, `react-dom`, and `react-scripts`. It also defines the `start` and `build` scripts.
+* **`app/src/index.js`**: This is the entry point for your React application. In this example, it renders a simple "Hello, world" message.
 
-## Recommended Pattern for Accessing Configuration
+You can develop your React application as you normally would within the `app/` directory. To start a development server (if needed), you can navigate to the `app/` directory in your terminal and run:
 
-To ensure automated tests (Pytest) do not rely on live configuration sources, use the following pattern to fetch configuration values. This pattern checks for environment variables set by Pytest (`PYTEST_CURRENT_TEST` or `PYTEST_VERSION`) to determine the execution context.
-
-```python
-import os
-# Assuming get_config is available for fetching live config
-# from litepolis import get_config
-
-# Define default values suitable for testing environment
-DEFAULT_CONFIG = {
-    "database_url": "sqlite:///./test_default.db",
-    "some_api_key": "test_key_123"
-    # Add other necessary default config values here
-}
-
-# Configuration Fetching Logic
-db_url = None
-some_key = None
-
-# Check if running under Pytest
-if ("PYTEST_CURRENT_TEST" not in os.environ and
-    "PYTEST_VERSION" not in os.environ):
-    # NOT running under Pytest: Fetch from live source
-    print("Fetching configuration from live source...") # Optional debug msg
-    # Replace with actual service name and key
-    # db_url = get_config("your_service_name", "database_url")
-    # some_key = get_config("your_service_name", "some_api_key")
-    # Example placeholder if get_config isn't immediately available:
-    db_url = "live_db_url_placeholder"
-    some_key = "live_api_key_placeholder"
-else:
-    # Running under Pytest: Use default values
-    print("Running under Pytest. Using default configuration.") # Optional debug msg
-    db_url = DEFAULT_CONFIG["database_url"]
-    some_key = DEFAULT_CONFIG["some_api_key"]
-
-# Use the determined config values (db_url, some_key)
-print(f"Using Database URL: {db_url}")
-print(f"Using API Key: {some_key}")
-
+```bash
+cd app
+npm start
 ```
+
+## Step 3: Building Your React Frontend for Production
+
+Before deploying your LitePolis UI module, you need to build your React application into static files. To do this, navigate to the `app/` directory in your terminal and run:
+
+```bash
+cd app
+npm run build
+```
+
+## Step 4: Integrating the React Frontend into the LitePolis UI Module
+
+Now, you need to integrate the built React application into your LitePolis UI module so that it can be served.
+
+1.  **Copy the `build` directory contents:** After running `npm run build` in the `app/` directory, copy the entire contents of the `app/build` directory into the `litepolis_ui_template/static/` directory (or your renamed package's `static/` directory).
+
+    Your directory structure should now look something like this:
+
+    ```
+    litepolis-ui-my-awesome-ui/
+    ├── litepolis_ui_my_awesome_ui/
+    │   ├── core.py
+    │   └── static/
+    │       ├── index.html
+    │       ├── asset-manifest.json
+    │       ├── favicon.ico
+    │       ├── robots.txt
+    │       ├── static/
+    │       │   ├── css/
+    │       │   └── js/
+    │       └── ... (other built assets)
+    ├── app/
+    │   ├── ...
+    ├── tests/
+    │   └── test_core.py
+    └── setup.py
+    ```
+
+2.  **Ensure `core.py` is configured to serve static files:** The `core.py` file in your package should already be set up to serve static files from the `static/` directory. Verify that it looks similar to this:
+
+    ```python
+    from fastapi import FastAPI
+    from fastapi.staticfiles import StaticFiles
+
+    app = FastAPI()
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    ```
+
+## Step 5: Configuring Your Python Package (`setup.py`)
+
+Make sure to update the `setup.py` file with the correct information for your UI module, including the `name` (remember the `litepolis-ui-` prefix), `version`, `description`, etc.
+
+## Step 6: Automating Build and Publish with GitHub Actions
+
+This template includes a GitHub Actions workflow (`python-publish.yml`) to automate the process of building your React application and publishing your LitePolis UI module to PyPI when you create a new release on GitHub.
+
+* **`name: Build`**: Navigates to the `app/` directory and builds the React app using `npm run build`. The output will be in the `app/build` directory we will move it to `<litepolis_package_name>/static`.
+
+By following these steps, you can effectively build a LitePolis UI module with a React frontend and leverage GitHub Actions for automated build and deployment. Remember to replace placeholders with your actual project details.

@@ -8,14 +8,14 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='litepolis-ui-template',                                   # Change
+    name='litepolis-ui-example',                                    # Change
     version="0.0.1",                                                # Change
     description='The user interface template module for LitePolis', # Change
     long_description=readme,
     long_description_content_type="text/markdown",
-    author='Your name',                                             # Change
+    author='NewJerseyStyle',                                        # Change
     # author_email='Optional',                                      # Change
-    url='https://github.com/change-to-your-repo',                   # Change
+    url='https://github.com/NewJerseyStyle/LitePolis-ui-example',   # Change
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=['fastapi', 'litepolis'],
