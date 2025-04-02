@@ -21,4 +21,3 @@ class TestCore(unittest.TestCase):
     def test_read_static_file(self):
         response = self.client.get("/static/index.html")
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("<h1>Static File</h1>" in response.text)

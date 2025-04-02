@@ -20,6 +20,6 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=['fastapi', 'litepolis'],
     package_data={
-        'static' : ['litepolis_ui_template/static/*.html']
+        'static' : ['litepolis_ui_template/static/*']
     }
 )
