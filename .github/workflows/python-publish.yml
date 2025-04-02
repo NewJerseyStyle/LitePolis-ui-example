@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         working-directory: app
-        run: npm run build; cp -r build/static ../static
+        run: npm run build; find .. -name "litepolis_ui_*" -exec cp -r build/static/* {}/static/ \;
 
       - name: Build release distributions
         run: |
